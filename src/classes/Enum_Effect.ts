@@ -1,0 +1,4 @@
+enum Effect {
+	Fertilize,
+	killBug
+}

@@ -1,0 +1,1 @@
+let mainGame = new Game();
