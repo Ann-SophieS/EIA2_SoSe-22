@@ -3,8 +3,8 @@ var Game = /** @class */ (function () {
         //FIXME Set all values dynamically in parametrized constructor
         this.timescale = 1.0;
         this.money = 1000;
-        this.gameShop = new Shop();
-        this.gameField = new Field(40);
+        this.gameField = new Field(40); // Calls constructor of Field
+        this.gameShop = new Shop(this.gameField); // Calls constructor of Shop
     }
     /**
      * Processes a money transaction
