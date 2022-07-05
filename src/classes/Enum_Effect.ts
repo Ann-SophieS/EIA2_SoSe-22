@@ -1,4 +1,5 @@
 enum Effect {
 	Fertilize,
-	killBug
+	killBug,
+	water
 }

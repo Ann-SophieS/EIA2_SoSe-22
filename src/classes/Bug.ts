@@ -9,4 +9,9 @@ class Bug {
 		throw new Error("Not implemented!");
 	}
 
+	public fix() : void{
+		// TODO - implement Bug.fix
+		throw new Error("Not implemented!");
+	}
+
 }

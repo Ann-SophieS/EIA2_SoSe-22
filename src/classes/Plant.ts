@@ -5,93 +5,233 @@ class Plant {
 	private amountWatered : number;
 	private amountFertilized : number;
 	private infected : Bug;
-	private timer;
+	private growthTimer : NodeJS.Timer;
 	private properties : PlantProperties;
 
+	/**
+	 * Gets the appearance of the plant
+	 * @returns URL to the appearance image
+	 */
 	public getAppearance() : string {
-		// TODO - implement Plant.getAppearance
 		return this.properties.appearance;
 	}
 
+	/**
+	 * Waters the plant
+	 */
 	public waterPlant() : void {
-		// TODO - implement Plant.waterPlant
-		throw new Error('Not Implemented!');
+		if(this.amountWatered + 1 > this.properties.waterNeeded){
+			this.die(); // If the plant has been watered too much, it dies
+		}else{
+			this.amountWatered = this.amountWatered + 1;
+		}
 	}
 
 	/**
-	 * If the plant dies, the Price is reduced to zero, the slot the plant is located at is not cleared
+	 * Makes a plant die
 	 */
-	public die() : void {
-		// TODO - implement Plant.die
-		throw new Error('Not Implemented!');
+	private die() : void {
+		this.properties.sellPrice = 0; // Dead plants are worethless
+		clearInterval(this.growthTimer); // A dead plant cant grow
+		//FIXME Update apperance
 	}
 
+	/**
+	 * Fertilizes the plant
+	 */
 	public fertilizePlant() : void {
-		// TODO - implement Plant.fertilizePlant
-		throw new Error('Not Implemented!');
+		if(this.amountFertilized + 1 > this.properties.fertilizerNeeded){
+			this.die(); // Too much fertilizer kills the plant
+		}else{
+			this.amountFertilized = this.amountFertilized + 1;
+		}
 	}
 
+	/**
+	 * Gets how much the plant has been watered
+	 * @returns How often the plant has been watered
+	 */
 	public getAmountWatered() : number {
 		return this.amountWatered;
 	}
 
+	/**
+	 * Gets the amount of fertilizer used on the plant
+	 * @returns How often the plant has been fertilized
+	 */
 	public getAmountFertilized() : number {
 		return this.amountFertilized;
 	}
 
+	/**
+	 * Checks whether the plant is infected with a Bug
+	 * @returns True if the plant is infected
+	 */
 	public isInfected() : boolean {
-		// TODO - implement Plant.isInfected
-		throw new Error('Not Implemented!');
-	}
-
-	public fixBug() : void {
-		// TODO - implement Plant.fixBug
-		throw new Error('Not Implemented!');
+		if(this.infected != null){
+			return true;
+		}else{
+			return false;
+		}
 	}
 
 	/**
-	 * 
-	 * @return Price the Plant was sold at
+	 * Removes the bug from the Plant
+	 */
+	public fixBug() : void {
+		if(this.isInfected() == true){
+			this.infected.fix(); //Stop the kill timer of the bug
+			this.infected = null; // and remove the Bug from the Plant
+		}
+	}
+
+	/**
+	 * Harvests a plant
+	 * @return Price the Plant was sold at, -1 if the plant could not be harvested
 	 */
 	public harvest() : number {
-		// TODO - implement Plant.harvest
-		throw new Error('Not Implemented!');
-	}
-
-	public timerTick() : void {
-		// TODO - implement Plant.timerTick
-		throw new Error('Not Implemented!');
-	}
-
-	public getStatistics() : string {
-		// TODO - implement Plant.getStatistics
-		throw new Error('Not Implemented!');
+		if(this.isHarvestable()){
+			return this.properties.sellPrice;
+		}else{
+			return -1;
+		}
 	}
 
 	/**
-	 * 
-	 * @param effect
+	 * Handles growth of the plant
+	 */
+	public growTimerTick() : void {
+		this.secondsSincePlanted = this.secondsSincePlanted + 1; // Increase the time since planting
+
+		// Check if the full grow time has expired
+		if(this.secondsSincePlanted >= this.properties.totalGrowTime && this.growthStage == Growth.Growing){
+			
+			//Check if the plant had enough fertilizer
+			if(this.amountFertilized == this.properties.fertilizerNeeded){
+				// Check if the plant was watered enough
+				if(this.amountWatered == this.properties.waterNeeded){
+					// If the plant had enough water and fertilizer it can be harvested...
+					this.growthStage = Growth.Harvest;
+					// ...and cant grow further
+					clearInterval(this.growthTimer);
+					//FIXME Update Apperance
+				}else{
+					this.die(); // Not enough water -> Ded
+				}
+			}else{
+				this.die(); // Not enough fertilizer -> Ded
+			}
+		
+		// Check if half of the grow time has expired
+		}else if(this.secondsSincePlanted >= (this.properties.totalGrowTime * 0.5) && this.growthStage == Growth.Sprout){
+			//Check if the plant had enough fertilizer
+			if(this.amountFertilized >= Math.floor(this.properties.fertilizerNeeded/2)){
+				// Check if the plant was watered enough
+				if(this.amountFertilized >= Math.floor(this.properties.waterNeeded/2)){
+					// If the plant had enough water and fertilizer, it grows
+					this.growthStage = Growth.Growing;
+					//FIXME Update Appearance
+				}else{
+					this.die(); // Not enough water -> Ded
+				}
+			}else{
+				this.die(); // Not enough fertilizer -> Ded
+			}
+		}
+	}
+
+	/**
+	 * Get growth statistics of a plant
+	 * @returns A String containing statistics of the plant
+	 */
+	public getStatistics() : string {
+		// https://www.geeksforgeeks.org/how-to-create-multi-line-strings-in-javascript/
+		let statistics : string = 
+		"Growth stage : " + this.growthStage.toString() + "\n" +
+		"Water: " + this.amountWatered + " / " + this.properties.waterNeeded + "\n" +
+		"Fertilizer : " + this.amountFertilized + " / " + this.properties.fertilizerNeeded + "\n" +
+		"Possible profit : " + (this.properties.sellPrice - this.properties.buyPrice) + "\n" +
+		"\n";
+		//TODO Add more statistics
+
+		if(this.isDead()){
+			statistics = "This plant is dead. Great. Good job. Poor plan(t)ing :(";
+			return statistics;
+		}
+
+		if(this.isHarvestable()){
+			statistics = 
+			"Plant is ready for harvest!\n" +
+			"Sell price will be : " + this.properties.sellPrice +"\n" +
+			"Your profit: " + (this.properties.sellPrice - this.properties.buyPrice) + "\n";
+			return statistics;
+		}
+
+		
+
+		return statistics;
+	}
+
+	/**
+	 * Processes a specified effect on the plant
+	 * @param effect Effect to be applied on the plant
 	 */
 	public processEffect(effect : Effect) : void {
-		// TODO - implement Plant.processEffect
-		throw new Error('Not Implemented!');
+		switch(effect){ //FIXME IfElse
+			case Effect.Fertilize:
+				this.fertilizePlant();
+				break;
+			case Effect.killBug:
+				this.fixBug();
+				break;
+			case Effect.water:
+				this.waterPlant();
+				break;
+		}
 	}
 
 	/**
-	 * 
-	 * @param bug
+	 * Adds an infection to the plant
+	 * @param bug The bug to infect the plant with
 	 */
-	public getInfected(bug : Bug) : void {
-		// TODO - implement Plant.getInfected
-		throw new Error('Not Implemented!');
+	public becomeInfected(bug : Bug) : void {
+		if(this.infected == null){
+			this.infected = bug;
+		}		
 	}
 
 	/**
-	 * Returns true if the SellPrice is 0 (the plant is dead) or the Growth Stage is Harvest
+	 * Checks if the plant can be harvested
+	 * @return Returns true if the plant is fully grown or dead, else false
 	 */
 	public isHarvestable() : boolean {
-		// TODO - implement Plant.isHarvestable
-		throw new Error('Not Implemented!');
+		if(this.isDead() || this.growthStage == Growth.Harvest){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	/**
+	 * Checks if the plant is alive or dead
+	 * @returns True if the plant is dead, else false
+	 */
+	public isDead() : boolean{
+		if(this.properties.sellPrice == 0){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	public constructor(properties : PlantProperties){
+		this.growthStage = Growth.Sprout;
+		this.secondsSincePlanted = 0;
+		this.amountWatered = 0;
+		this.amountFertilized = 0;
+		this.infected = null;
+		this.growthTimer = setInterval(this.growTimerTick, 1000); //FIXME Adjust to timescale
+		this.properties = properties;
 	}
 
 }

@@ -2,7 +2,6 @@ interface Item {
     
 	price : number;
 	name : string;
-	currentPriceMultiplicator : number;
 	shopThumbnail : string;
 
 	/**

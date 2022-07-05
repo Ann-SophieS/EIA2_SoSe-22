@@ -6,6 +6,8 @@ class Field {
 	private generateBugTimer : NodeJS.Timer;
 
 
+
+
 	/**
 	 * Check plant on a specific position on the field
 	 * @param index Index of a slot on the field
@@ -13,6 +15,25 @@ class Field {
 	 */
 	public getPlantAt(index : number) : Plant{
 		return this.slots[index];
+	}
+
+
+	/**
+	 * Get the Plant at the currently selected position
+	 * @returns the Plant at the currently selected Position
+	 */
+	public getPlantAtSelected() : Plant{
+		return this.getPlantAt(this.selectedSlot);
+	}
+
+
+	/**
+	 * Plants a plant at the slot the user has currently selected
+	 * @param plant Plant to plant at the selected slot
+	 * @returns If the plant could be planted or not
+	 */
+	public plantAtSelected(plant : Plant) : boolean{
+		return this.plantAt(plant,this.selectedSlot);
 	}
 
 	/**
@@ -70,7 +91,7 @@ class Field {
 		if(this.slots[randomIndex].isInfected()){
 			return; // If picked plant is already infected, do nothing
 		}else{
-			this.slots[randomIndex].getInfected(new Bug()); // Infect plant
+			this.slots[randomIndex].becomeInfected(new Bug()); // Infect plant
 		}
 	}
 
