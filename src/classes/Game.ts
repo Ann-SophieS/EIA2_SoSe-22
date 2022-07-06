@@ -5,8 +5,7 @@ export class Game {
 	private timescale : number;
 	gameShop : Shop;
 	gameField : Field;
-
-    
+    renderingContext : CanvasRenderingContext2D;
 
 	/**
 	 * Processes a money transaction 
@@ -26,12 +25,14 @@ export class Game {
         return this.timescale;
     }
 
-    constructor(){
+    constructor(renderingContext : CanvasRenderingContext2D){
         //FIXME Set all values dynamically in parametrized constructor
         this.timescale = 1.0;
         this.money = 1000;
-        this.gameField = new Field(40);             // Calls constructor of Field
+        this.renderingContext = renderingContext;
+        this.gameField = new Field((8*8),this);          // Calls constructor of Field, size has to be square number
         this.gameShop = new Shop(this.gameField,this);   // Calls constructor of Shop
+        
     }
 
 }

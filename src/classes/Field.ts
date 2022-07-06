@@ -5,9 +5,7 @@ export class Field {
 	private slots : Plant[];
 	selectedSlot : number; //FIXME Private
 	private generateBugTimer : NodeJS.Timer;
-
-
-
+	private associatedGame : Game;
 
 	/**
 	 * Check plant on a specific position on the field
@@ -62,9 +60,8 @@ export class Field {
 		if(this.getPlantAt(fieldIndex) != null){
             return false;
         }
-        
         // Check if fieldIndex is actually on the field
-        if(this.fieldSize < fieldIndex){
+        if(this.fieldSize <= fieldIndex){
             return false;
         }
         
@@ -76,8 +73,24 @@ export class Field {
 	}
 
 	public drawField() : void{
-		// TODO - implement Field.drawField
-		throw new Error("Not Implemented!");
+		let w = 0;
+		let h = 0;
+		w = this.associatedGame.renderingContext.canvas.width; //FIXME Static values
+		h = this.associatedGame.renderingContext.canvas.height;
+		w *= 0.75; // Make field 3/4 of canvas size, 1/4 is sidebar
+		let fieldSizePX = (w/(Math.floor(Math.sqrt(this.fieldSize))));
+
+		for (let x=0;x<=w;x+=fieldSizePX) {
+			for (let y=0;y<=h;y+=fieldSizePX) {
+				this.associatedGame.renderingContext.moveTo(x, 0);
+				this.associatedGame.renderingContext.lineTo(x, h);
+				this.associatedGame.renderingContext.stroke();
+
+				this.associatedGame.renderingContext.moveTo(0, y);
+				this.associatedGame.renderingContext.lineTo(w, y);
+				this.associatedGame.renderingContext.stroke();
+			}
+		}
 	}
 
 	/**
@@ -114,13 +127,15 @@ export class Field {
 	 * 
 	 * @param fieldSize Amount of slots for plants on the field
 	 */
-	public constructor(fieldSize : number){
+	public constructor(fieldSize : number, associatedGame : Game){
 		this.fieldSize = fieldSize; // Save field size (see top)
-		this.slots = [];
-		this.slots.fill(null,0,fieldSize);
+		this.slots = []; // Create empty array (needed for fill)
+		this.slots.fill(null,0,fieldSize); // Fill array with nulls 
 		this.selectedSlot = -1; // -1 can never be reached (User has not yet selected a field at the beginning)
 		// FIXME Bug timer not adjusted to timescale
 		this.generateBugTimer = setInterval(this.bugTimerTick, 1000);
+		this.associatedGame = associatedGame;
+		this.drawField();
 	}
 
 }

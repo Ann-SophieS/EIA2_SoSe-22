@@ -6,7 +6,7 @@ export class PlantProperties {
 	waterNeeded : number;
 	buyPrice : number;
 	sellPrice : number;
-	appearance : string;
+	appearance : string[];
 	name : string;
 
 }

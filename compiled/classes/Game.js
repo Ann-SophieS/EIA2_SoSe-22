@@ -1,11 +1,12 @@
 var Classes;
 (function (Classes) {
     var Game = /** @class */ (function () {
-        function Game() {
+        function Game(renderingContext) {
             //FIXME Set all values dynamically in parametrized constructor
             this.timescale = 1.0;
             this.money = 1000;
-            this.gameField = new Classes.Field(40); // Calls constructor of Field
+            this.renderingContext = renderingContext;
+            this.gameField = new Classes.Field((8 * 8), this); // Calls constructor of Field, size has to be square number
             this.gameShop = new Classes.Shop(this.gameField, this); // Calls constructor of Shop
         }
         /**

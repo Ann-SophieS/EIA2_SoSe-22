@@ -15,7 +15,7 @@ export class PlantItem implements Item {
         this.properties = plantProperties;
         this.price = plantProperties.buyPrice;
         this.name = plantProperties.name;
-        this.shopThumbnail = plantProperties.appearance;
+        this.shopThumbnail = plantProperties.appearance[0]; //FIXME Change ?
     }
 
 }
