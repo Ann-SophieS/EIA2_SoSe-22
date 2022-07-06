@@ -1,4 +1,5 @@
-class UtilityItem implements Item {
+namespace Classes{
+export class UtilityItem implements Item {
     
     price: number;
     name: string;
@@ -9,4 +10,5 @@ class UtilityItem implements Item {
 
 	effectOnPlant : Effect;
 
+}
 }

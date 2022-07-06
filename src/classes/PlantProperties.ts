@@ -1,4 +1,5 @@
-class PlantProperties {
+namespace Classes{
+export class PlantProperties {
 
 	totalGrowTime : number;
 	fertilizerNeeded : number;
@@ -8,4 +9,5 @@ class PlantProperties {
 	appearance : string;
 	name : string;
 
+}
 }

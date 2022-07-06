@@ -1,4 +1,5 @@
-class PlantItem implements Item {
+namespace Classes{
+export class PlantItem implements Item {
 
     
     price: number;
@@ -10,4 +11,12 @@ class PlantItem implements Item {
 
 	properties : PlantProperties;
 
+    public constructor(plantProperties : PlantProperties){
+        this.properties = plantProperties;
+        this.price = plantProperties.buyPrice;
+        this.name = plantProperties.name;
+        this.shopThumbnail = plantProperties.appearance;
+    }
+
+}
 }

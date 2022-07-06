@@ -1,9 +1,10 @@
-class Game {
-
-	private money : number;
+namespace Classes{
+export class Game {
+     //FIXME Attributes private
+	money : number;
 	private timescale : number;
-	private gameShop : Shop;
-	private gameField : Field;
+	gameShop : Shop;
+	gameField : Field;
 
     
 
@@ -30,7 +31,8 @@ class Game {
         this.timescale = 1.0;
         this.money = 1000;
         this.gameField = new Field(40);             // Calls constructor of Field
-        this.gameShop = new Shop(this.gameField);   // Calls constructor of Shop
+        this.gameShop = new Shop(this.gameField,this);   // Calls constructor of Shop
     }
 
+}
 }

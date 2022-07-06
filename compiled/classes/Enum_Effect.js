@@ -1,6 +1,10 @@
-var Effect;
-(function (Effect) {
-    Effect[Effect["Fertilize"] = 0] = "Fertilize";
-    Effect[Effect["killBug"] = 1] = "killBug";
-})(Effect || (Effect = {}));
+var Classes;
+(function (Classes) {
+    var Effect;
+    (function (Effect) {
+        Effect[Effect["Fertilize"] = 0] = "Fertilize";
+        Effect[Effect["killBug"] = 1] = "killBug";
+        Effect[Effect["water"] = 2] = "water";
+    })(Effect = Classes.Effect || (Classes.Effect = {}));
+})(Classes || (Classes = {}));
 //# sourceMappingURL=Enum_Effect.js.map

@@ -2,7 +2,7 @@ var Classes;
 (function (Classes) {
     var mainGame = new Classes.Game();
     console.log("Game created!");
-    var carrotProps = new Classes.PlantProperties();
+    var carrotProps = new PlantProperties();
     carrotProps.appearance = "Karodden";
     carrotProps.buyPrice = 100;
     carrotProps.fertilizerNeeded = 2;
@@ -10,7 +10,7 @@ var Classes;
     carrotProps.sellPrice = 200;
     carrotProps.totalGrowTime = 4;
     carrotProps.waterNeeded = 2;
-    var carrotItem = new Classes.PlantItem(carrotProps);
+    var carrotItem = new PlantItem(carrotProps);
     console.log("Adding item : ");
     console.log(carrotItem);
     mainGame.gameShop.addItem(carrotItem);

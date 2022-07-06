@@ -1,9 +1,10 @@
-class Shop {
-
-	private timer;
+namespace Classes{
+export class Shop {
+	private timer : NodeJS.Timer;
 	private priceVaryMultiplicator : number;
-	private items : Item[];
+	items : Item[]; // FIXME Private
 	private associatedField : Field;
+	private associatedGame : Game;
 
 	/**
 	 * Handles price fluctuations (timer)
@@ -21,14 +22,16 @@ class Shop {
 	 */
 	public buyItem(item : Item) : boolean{
 
-		
-
-		if(typeof item == typeof PlantItem){ // If the bought item is a plant...
-
+		if(this.associatedGame.makeTransaction(item.price) == false){
+			return false;
+		}
+		// https://stackoverflow.com/questions/13613524/get-an-objects-class-name-at-runtime
+		if(item.constructor.name == PlantItem.name){ // If the bought item is a plant...
 			//give selected item the properties of the clicked plant item
-			return this.associatedField.plantAtSelected(new Plant((<PlantItem>item).properties)); 
+			let toPlant : Plant = new Plant((<PlantItem>item).properties)
+			return this.associatedField.plantAtSelected(toPlant); 
 
-		}else if(typeof item == typeof UtilityItem){ // If the bought item is a utility...
+		}else if(item.constructor.name == UtilityItem.name){ // If the bought item is a utility...
 
 			let selectedPlant : Plant = this.associatedField.getPlantAtSelected();
 
@@ -48,7 +51,7 @@ class Shop {
 	 * @returns returns false if an item with the same name already exsists in the shop
 	 */
 	public addItem(item : Item) : boolean{
-		for (let itemCounter = 0; itemCounter <= this.items.length; itemCounter++) {
+		for (let itemCounter = 0; itemCounter <= this.items.length-1; itemCounter++) {
 			if(this.items[itemCounter].name == item.name){
 				return false;
 			}			
@@ -61,11 +64,13 @@ class Shop {
 	 * Sets up shop
 	 * @param associatedField Field the shop is associated to
 	 */
-	public constructor(associatedField : Field){
+	public constructor(associatedField : Field, associatedGame : Game){
 		this.timer = setInterval(this.varyPrices, 60000); //FIXME Adjust timer to timescale
 		this.priceVaryMultiplicator = 1;
 		this.items = [];
 		this.associatedField = associatedField;
+		this.associatedGame = associatedGame;
 	}
 
+}
 }

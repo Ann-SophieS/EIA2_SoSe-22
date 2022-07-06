@@ -1,7 +1,8 @@
-class Plant {
+namespace Classes{
+export class Plant {
 
 	private growthStage : Growth;
-	private secondsSincePlanted : number;
+	private timeSincePlanted : number;
 	private amountWatered : number;
 	private amountFertilized : number;
 	private infected : Bug;
@@ -100,42 +101,50 @@ class Plant {
 	/**
 	 * Handles growth of the plant
 	 */
-	public growTimerTick() : void {
-		this.secondsSincePlanted = this.secondsSincePlanted + 1; // Increase the time since planting
+	//TODO V
+	public growTimerTick(plant : Plant) : void {
+		plant.timeSincePlanted = plant.timeSincePlanted + 1; // Increase the time since planting
+
+		console.log("Plant is growing, time since planted : " + plant.timeSincePlanted);
+		console.log(plant);
+		console.log(plant.getStatistics());
+
 
 		// Check if the full grow time has expired
-		if(this.secondsSincePlanted >= this.properties.totalGrowTime && this.growthStage == Growth.Growing){
+		if(plant.timeSincePlanted >= plant.properties.totalGrowTime && plant.growthStage == Growth.Growing){
 			
 			//Check if the plant had enough fertilizer
-			if(this.amountFertilized == this.properties.fertilizerNeeded){
+			if(plant.amountFertilized == plant.properties.fertilizerNeeded){
 				// Check if the plant was watered enough
-				if(this.amountWatered == this.properties.waterNeeded){
+				if(plant.amountWatered == plant.properties.waterNeeded){
 					// If the plant had enough water and fertilizer it can be harvested...
-					this.growthStage = Growth.Harvest;
+					plant.growthStage = Growth.Harvest;
 					// ...and cant grow further
-					clearInterval(this.growthTimer);
+					clearInterval(plant.growthTimer);
 					//FIXME Update Apperance
+					console.log("Plant is harvestable");
 				}else{
-					this.die(); // Not enough water -> Ded
+					plant.die(); // Not enough water -> Ded
 				}
 			}else{
-				this.die(); // Not enough fertilizer -> Ded
+				plant.die(); // Not enough fertilizer -> Ded
 			}
 		
 		// Check if half of the grow time has expired
-		}else if(this.secondsSincePlanted >= (this.properties.totalGrowTime * 0.5) && this.growthStage == Growth.Sprout){
+		}else if(plant.timeSincePlanted >= (plant.properties.totalGrowTime * 0.5) && plant.growthStage == Growth.Sprout){
 			//Check if the plant had enough fertilizer
-			if(this.amountFertilized >= Math.floor(this.properties.fertilizerNeeded/2)){
+			if(plant.amountFertilized >= Math.floor(plant.properties.fertilizerNeeded/2)){
 				// Check if the plant was watered enough
-				if(this.amountFertilized >= Math.floor(this.properties.waterNeeded/2)){
+				if(plant.amountFertilized >= Math.floor(plant.properties.waterNeeded/2)){
 					// If the plant had enough water and fertilizer, it grows
-					this.growthStage = Growth.Growing;
+					plant.growthStage = Growth.Growing;
 					//FIXME Update Appearance
+					console.log("A Plant grew")
 				}else{
-					this.die(); // Not enough water -> Ded
+					plant.die(); // Not enough water -> Ded
 				}
 			}else{
-				this.die(); // Not enough fertilizer -> Ded
+				plant.die(); // Not enough fertilizer -> Ded
 			}
 		}
 	}
@@ -226,12 +235,13 @@ class Plant {
 
 	public constructor(properties : PlantProperties){
 		this.growthStage = Growth.Sprout;
-		this.secondsSincePlanted = 0;
+		this.timeSincePlanted = 0;
 		this.amountWatered = 0;
 		this.amountFertilized = 0;
 		this.infected = null;
-		this.growthTimer = setInterval(this.growTimerTick, 1000); //FIXME Adjust to timescale
+		this.growthTimer = setInterval(this.growTimerTick, 5000, this); //FIXME Adjust to timescale
 		this.properties = properties;
 	}
 
+}
 }

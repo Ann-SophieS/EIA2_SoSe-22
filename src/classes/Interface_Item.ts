@@ -1,4 +1,5 @@
-interface Item {
+namespace Classes{
+export interface Item {
     
 	price : number;
 	name : string;
@@ -11,4 +12,5 @@ interface Item {
 	varyPrice(multiplicator : number) : void;
 
 
+}
 }

@@ -1,8 +1,9 @@
-class Field {
+namespace Classes{
+export class Field {
 
 	private fieldSize : number;
 	private slots : Plant[];
-	private selectedSlot : number;
+	selectedSlot : number; //FIXME Private
 	private generateBugTimer : NodeJS.Timer;
 
 
@@ -24,6 +25,20 @@ class Field {
 	 */
 	public getPlantAtSelected() : Plant{
 		return this.getPlantAt(this.selectedSlot);
+	}
+
+	public harvestPlantAt(index : number) : number{
+		let harvestSellPrice : number = this.slots[index].harvest();
+		if(harvestSellPrice != -1){
+			this.slots[index] = null;
+			return harvestSellPrice;
+		}
+		return harvestSellPrice;
+		
+	}
+
+	public harvestPlantAtSelected() : number{
+		return this.harvestPlantAt(this.selectedSlot);
 	}
 
 
@@ -49,7 +64,7 @@ class Field {
         }
         
         // Check if fieldIndex is actually on the field
-        if(this.fieldSize > fieldIndex){
+        if(this.fieldSize < fieldIndex){
             return false;
         }
         
@@ -101,10 +116,12 @@ class Field {
 	 */
 	public constructor(fieldSize : number){
 		this.fieldSize = fieldSize; // Save field size (see top)
+		this.slots = [];
 		this.slots.fill(null,0,fieldSize);
 		this.selectedSlot = -1; // -1 can never be reached (User has not yet selected a field at the beginning)
 		// FIXME Bug timer not adjusted to timescale
 		this.generateBugTimer = setInterval(this.bugTimerTick, 1000);
 	}
 
+}
 }

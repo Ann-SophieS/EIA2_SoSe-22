@@ -1,4 +1,5 @@
-class Bug {
+namespace Classes{
+export class Bug {
 
 	private killProgress; // Timer
 	private infectedPlant : Plant;
@@ -14,4 +15,5 @@ class Bug {
 		throw new Error("Not implemented!");
 	}
 
+}
 }
