@@ -30,7 +30,14 @@ var Classes;
         Field.prototype.getPlantAtSelected = function () {
             return this.getPlantAt(this.selectedSlot);
         };
+        /**
+         * Harvests the Plant at a specified spot on the field
+         * @param index the spot on the field to harvest
+         * @returns the price the Plant was sold at, -1 if the plant couldnt be harvested
+         */
         Field.prototype.harvestPlantAt = function (index) {
+            //FIXME Check if index is on the field 
+            //FIXME Check if spot even has a plant
             var harvestSellPrice = this.slots[index].harvest();
             if (harvestSellPrice != -1) {
                 this.slots[index] = null;
@@ -38,6 +45,10 @@ var Classes;
             }
             return harvestSellPrice;
         };
+        /**
+         * Harvests the Plant the user has currently selected
+         * @returns the price the Plant was sold at, -1 if the plant couldnt be harvested
+         */
         Field.prototype.harvestPlantAtSelected = function () {
             return this.harvestPlantAt(this.selectedSlot);
         };
@@ -65,44 +76,60 @@ var Classes;
                 return false;
             }
             // If all is good, plant the plant
+            //Tell the plant where it was planted 
+            plant.setPlanted(this, fieldIndex);
+            // and plant it
             this.slots[fieldIndex] = plant;
-            this.drawField();
+            // update the slot with the new apperance
+            this.drawSlot(fieldIndex);
             return true;
         };
+        /**
+         * Draws the contents of all slots on the whole field on the canvas
+         */
         Field.prototype.drawField = function () {
-            var w = 0;
-            var h = 0;
-            w = this.associatedGame.renderingContext.canvas.width; //FIXME Static values
-            h = this.associatedGame.renderingContext.canvas.height;
-            //w *= 0.75; // Make field 3/4 of canvas size, 1/4 is sidebar
-            var fieldSizePX = (w / (Math.floor(Math.sqrt(this.fieldSize))));
-            this.associatedGame.renderingContext.clearRect(0, 0, w, h);
-            var innerIndex = 0;
-            for (var y = 0; y <= h; y += fieldSizePX) {
-                for (var x = 0; x <= w; x += fieldSizePX) {
-                    this.associatedGame.renderingContext.moveTo(x, 0);
-                    this.associatedGame.renderingContext.lineTo(x, h);
-                    this.associatedGame.renderingContext.stroke();
-                    if (x >= fieldSizePX && x <= w && y >= fieldSizePX && y <= h) {
-                        var fieldText = innerIndex.toString();
-                        if (this.slots[innerIndex] != null) {
-                            fieldText += "\nPlant";
-                        }
-                        if (this.selectedSlot == innerIndex) {
-                            fieldText += "\nSelected"; //TODO Print stats to sidebar
-                        }
-                        this.associatedGame.renderingContext.moveTo(x - (fieldSizePX * 0.5), y - (fieldSizePX * 0.5));
-                        this.associatedGame.renderingContext.fillText(fieldText, x - (fieldSizePX * 0.5), y - (fieldSizePX * 0.5));
-                        //this.associatedGame.renderingContext.arc(x-(fieldSizePX*0.5), y-(fieldSizePX*0.5), (fieldSizePX*0.25), 0, 2 * Math.PI, false);
-                        this.associatedGame.renderingContext.fill();
-                        this.associatedGame.renderingContext.stroke();
-                        innerIndex++;
-                    }
-                    this.associatedGame.renderingContext.moveTo(0, y);
-                    this.associatedGame.renderingContext.lineTo(w, y);
-                    this.associatedGame.renderingContext.stroke();
-                }
+            for (var i = 0; i <= this.fieldSize; i++)
+                this.drawSlot(i);
+        };
+        /**
+         * (Re)Draws the contents of a specific slot on the canvas
+         * @param index Slot to draw
+         */
+        Field.prototype.drawSlot = function (index) {
+            var _this = this;
+            var canvasWidth = this.associatedGame.renderingContext.canvas.width; // Get width of whole canvas
+            var rowLength = (Math.sqrt(this.fieldSize)); // calculate amount of fields in one row
+            var fieldSizePX = (canvasWidth / rowLength); // calculate size of one slot
+            // Get top left corner of slot (px)
+            var startY = Math.trunc(index / rowLength) * fieldSizePX;
+            var startX = (index % rowLength) * fieldSizePX;
+            this.associatedGame.renderingContext.clearRect(startX, startY, fieldSizePX, fieldSizePX); // Clear the slot
+            this.associatedGame.renderingContext.strokeRect(startX, startY, fieldSizePX, fieldSizePX); // Draw the border around the field
+            var fieldText = index.toString();
+            if (this.slots[index] != null) { // If there is a plant on the slot, display it and draw its stats
+                var apperance_1 = new Image();
+                apperance_1.src = this.slots[index].getCurrentAppearance();
+                apperance_1.addEventListener("load", function () {
+                    _this.associatedGame.renderingContext.drawImage(apperance_1, startX + 10, startY + 10, fieldSizePX - 20, fieldSizePX - 20);
+                    _this.associatedGame.renderingContext.fillStyle = 'blue'; //First text (water) will be blue
+                    _this.associatedGame.renderingContext.fillText((_this.slots[index].getAmountWatered() + " / " + _this.slots[index].getProperties().waterNeeded), startX + (fieldSizePX * 0.1), startY + (fieldSizePX * 0.2));
+                    _this.associatedGame.renderingContext.fillStyle = 'green'; //Second text (fertilizer) will be green
+                    _this.associatedGame.renderingContext.fillText((_this.slots[index].getAmountFertilized() + " / " + _this.slots[index].getProperties().fertilizerNeeded), startX + (fieldSizePX * 0.1), startY + (fieldSizePX * 0.3));
+                    _this.associatedGame.renderingContext.fillStyle = 'black'; // Reset the text color
+                });
             }
+            if (this.selectedSlot == index) {
+                this.associatedGame.renderingContext.strokeRect(startX + 2, startY + 2, fieldSizePX - 4, fieldSizePX - 4); // Draw border around selected field
+            }
+            //Show the index of the field //FIXME remove
+            this.associatedGame.renderingContext.moveTo(startX + (fieldSizePX * 0.5), startY + (fieldSizePX * 0.5));
+            this.associatedGame.renderingContext.fillText(fieldText, startX + (fieldSizePX * 0.5), startY + (fieldSizePX * 0.5));
+        };
+        /**
+         * (Re)Draws the contents of the currently selected slot
+         */
+        Field.prototype.drawCurrentSlot = function () {
+            this.drawSlot(this.selectedSlot);
         };
         /**
          * Handles the event if the user clicked the field
@@ -117,8 +144,10 @@ var Classes;
             console.log("Row : " + row);
             console.log("Col : " + col);
             console.log("User Clicked at index : " + ((col * Math.floor(Math.sqrt(this.fieldSize))) + row));
+            var oldSlot = this.selectedSlot;
             this.selectedSlot = ((col * Math.floor(Math.sqrt(this.fieldSize))) + row);
-            this.drawField();
+            this.drawSlot(oldSlot);
+            this.drawSlot(this.selectedSlot);
         };
         /**
          * Handles random Bug infections on the field

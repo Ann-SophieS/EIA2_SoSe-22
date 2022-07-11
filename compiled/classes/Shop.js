@@ -54,6 +54,7 @@ var Classes;
                 var selectedPlant = this.associatedField.getPlantAtSelected();
                 if (selectedPlant != null) {
                     selectedPlant.processEffect(item.effectOnPlant);
+                    this.associatedField.drawCurrentSlot();
                     return true;
                 }
             }

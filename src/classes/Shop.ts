@@ -51,7 +51,7 @@ export class Shop {
 		// https://stackoverflow.com/questions/13613524/get-an-objects-class-name-at-runtime
 		if(item.constructor.name == PlantItem.name){ // If the bought item is a plant...
 			//give selected item the properties of the clicked plant item
-			let toPlant : Plant = new Plant((<PlantItem>item).properties)
+			let toPlant : Plant = new Plant((<PlantItem>item).properties);
 			return this.associatedField.plantAtSelected(toPlant); 
 
 		}else if(item.constructor.name == UtilityItem.name){ // If the bought item is a utility...
@@ -61,6 +61,7 @@ export class Shop {
 			if(selectedPlant != null){
 
 				selectedPlant.processEffect((<UtilityItem>item).effectOnPlant);
+				this.associatedField.drawCurrentSlot();
 				return true;
 
 			}

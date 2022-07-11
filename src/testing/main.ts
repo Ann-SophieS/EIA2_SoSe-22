@@ -5,12 +5,12 @@ namespace Classes{
 
     function handleLoad(_event: Event): void {
         // https://github.com/JirkaDellOro/EIA2-Inverted/blob/master/X00_Code/L08_Canvas/Alley/Alley.ts
-        let canvas: HTMLCanvasElement | null = document.querySelector("canvas");
+        let canvas: HTMLCanvasElement | null = document.querySelector("canvas"); // if element not found on site, canvas is null
         let shopTable : HTMLTableElement | null = <HTMLTableElement>document.getElementById("#shop");
         let statsDiv : HTMLDivElement | null = <HTMLDivElement>document.getElementById("#stats");
         console.log(canvas);
-        if (!canvas || !shopTable)
-            return;
+        if (!canvas || !shopTable || !statsDiv) // Check if all needed elements are present
+            return; // Game won't be loaded
         crc2 = <CanvasRenderingContext2D>canvas.getContext("2d");
 
 
@@ -18,26 +18,20 @@ namespace Classes{
         let mainGame = new Game(crc2);
         console.log("Game created!");
 
-        canvas.addEventListener('click', function(event) {
+        canvas.addEventListener('click', function(event) { // Click event on canvas
 
-                const rect = canvas.getBoundingClientRect()
-                const x = event.clientX - rect.left
-                const y = event.clientY - rect.top
-                //console.log("x: " + x + " y: " + y)
-                
-                mainGame.gameField.handleClick(x, y);
-
-                let plant : Plant = mainGame.gameField.getPlantAtSelected();
-
-                if(plant != null){
-                    statsDiv.innerHTML = plant.getStatistics();
-                }else{
-                    statsDiv.innerHTML = "You can plant here";
-                }
-
-                
+            const rect = canvas.getBoundingClientRect(); // Get position of rectangle on the page
+            const x = event.clientX - rect.left; // subtract pixels that are not on canvas
+            const y = event.clientY - rect.top;
 
             
+            mainGame.gameField.handleClick(x, y); // call method handleClick in gameField of mainGame
+            let plant : Plant = mainGame.gameField.getPlantAtSelected(); // get selected plant
+            if(plant != null){ 
+                statsDiv.innerHTML = plant.getStatistics(); // Show statistics of selected plant
+            }else{
+                statsDiv.innerHTML = "You can plant here";
+            }         
         
         }, false);
 
@@ -64,7 +58,7 @@ namespace Classes{
         }, 20000,mainGame);
     }
 
-    function populateShop(shop : Shop){
+    function populateShop(shop : Shop){ //Fill shop with items
 
         let carrotItem = new PlantItem(new PlantProperties(
             4,   // totalGrowTime
@@ -94,12 +88,13 @@ namespace Classes{
             "Potat" //Name
         ));
 
-        console.log("Adding item : ");
-        console.log(carrotItem);
-        console.log(potatoItem)
+        let waterItem = new UtilityItem(0,"Water","https://energyrecovery.com/wp-content/uploads/2020/11/Water_movement_hirez.jpg",Effect.water);
+        let fertilizerItem = new UtilityItem(0,"Fertilizer","https://i.pinimg.com/736x/10/97/5e/10975e17959cec7dfa30c2f88b7af29c.jpg",Effect.Fertilize);
 
         shop.addItem(carrotItem);
         shop.addItem(potatoItem);
+        shop.addItem(waterItem);
+        shop.addItem(fertilizerItem);
         console.log("Carrot created!");
     }
 

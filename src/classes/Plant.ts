@@ -8,12 +8,25 @@ export class Plant {
 	private infected : Bug;
 	private growthTimer : NodeJS.Timer;
 	private properties : PlantProperties;
+	private associatedField : Field;
+	private plantedAtIndex : number;
+
+	public setPlanted(plantedOn : Field, plantedAt : number){
+		this.associatedField = plantedOn;
+		this.plantedAtIndex = plantedAt;
+	}
+
+	private propertiesChanged(){
+		this.associatedField.drawSlot(this.plantedAtIndex);
+	}
 
 	/**
 	 * Gets the appearance of the plant
 	 * @returns URL to the appearance image
 	 */
 	public getCurrentAppearance() : string {
+		if(this.isDead())
+			return "https://cdn.dribbble.com/users/2406564/screenshots/6759331/screen_shot_2019-07-09_at_10.16.32_pm.png"; //FIXME Custom ded icon for every plant
 		return this.properties.appearance[this.growthStage];
 	}
 
@@ -33,8 +46,10 @@ export class Plant {
 	 */
 	private die() : void {
 		this.properties.sellPrice = 0; // Dead plants are worethless
+		 
+		console.log("Plant on field " + this.plantedAtIndex +  " died :(.")
 		clearInterval(this.growthTimer); // A dead plant cant grow
-		//FIXME Update apperance
+		this.propertiesChanged();
 	}
 
 	/**
@@ -62,6 +77,10 @@ export class Plant {
 	 */
 	public getAmountFertilized() : number {
 		return this.amountFertilized;
+	}
+
+	public getProperties() : PlantProperties{
+		return this.properties;
 	}
 
 	/**
@@ -120,8 +139,9 @@ export class Plant {
 					this.growthStage = Growth.Harvest;
 					// ...and cant grow further
 					clearInterval(this.growthTimer);
-					//FIXME Update Apperance
 					console.log("Plant is harvestable");
+					console.log(this.properties.appearance);
+					this.propertiesChanged();
 				}else{
 					this.die(); // Not enough water -> Ded
 				}
@@ -139,6 +159,7 @@ export class Plant {
 					this.growthStage = Growth.Growing;
 					//FIXME Update Appearance
 					console.log("A Plant grew")
+					this.propertiesChanged();
 				}else{
 					this.die(); // Not enough water -> Ded
 				}
@@ -146,6 +167,7 @@ export class Plant {
 				this.die(); // Not enough fertilizer -> Ded
 			}
 		}
+		
 	}
 
 	/**
@@ -155,27 +177,30 @@ export class Plant {
 	public getStatistics() : string {
 		// https://www.geeksforgeeks.org/how-to-create-multi-line-strings-in-javascript/
 		let statistics : string = 
-		"Growth stage : " + this.growthStage.toString() + "\n" +
-		"Water: " + this.amountWatered + " / " + this.properties.waterNeeded + "\n" +
-		"Fertilizer : " + this.amountFertilized + " / " + this.properties.fertilizerNeeded + "\n" +
-		"Possible profit : " + (this.properties.sellPrice - this.properties.buyPrice) + "\n" +
-		"\n";
+		"<table border='1'>" + 
+		"<tr>" + 
+			"<td>" + "Growth stage : " + "</td><td>" + this.growthStage.toString() + "</td>" +
+		"</tr><tr>" + 
+			"<td>" + "Water: " + "</td><td>"  + this.amountWatered + " / " + this.properties.waterNeeded + "</td>" +
+		"</tr><tr>" + 
+			"<td>" + "Fertilizer : " + "</td><td>"  + this.amountFertilized + " / " + this.properties.fertilizerNeeded + "</td>" +
+		"</tr><tr>" + 
+			"<td>" + "Possible profit : " + "</td><td>"  + (this.properties.sellPrice - this.properties.buyPrice) + "</td>" +
+		"</tr></table>";
 		//TODO Add more statistics
 
-		if(this.isDead()){
-			statistics = "This plant is dead. Great. Good job. Poor plan(t)ing :(";
-			return statistics;
-		}
+		
 
 		if(this.isHarvestable()){
 			statistics = 
 			"Plant is ready for harvest!\n" +
 			"Sell price will be : " + this.properties.sellPrice +"\n" +
 			"Your profit: " + (this.properties.sellPrice - this.properties.buyPrice) + "\n";
-			return statistics;
 		}
 
-		
+		if(this.isDead()){
+			statistics = "This plant is dead. Great. Good job. Poor plan(t)ing :(";
+		}
 
 		return statistics;
 	}

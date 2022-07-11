@@ -12,11 +12,20 @@ var Classes;
             // bind value source to class plant (this)
             this.properties = properties;
         }
+        Plant.prototype.setPlanted = function (plantedOn, plantedAt) {
+            this.associatedField = plantedOn;
+            this.plantedAtIndex = plantedAt;
+        };
+        Plant.prototype.propertiesChanged = function () {
+            this.associatedField.drawSlot(this.plantedAtIndex);
+        };
         /**
          * Gets the appearance of the plant
          * @returns URL to the appearance image
          */
         Plant.prototype.getCurrentAppearance = function () {
+            if (this.isDead())
+                return "https://cdn.dribbble.com/users/2406564/screenshots/6759331/screen_shot_2019-07-09_at_10.16.32_pm.png"; //FIXME Custom ded icon for every plant
             return this.properties.appearance[this.growthStage];
         };
         /**
@@ -35,8 +44,9 @@ var Classes;
          */
         Plant.prototype.die = function () {
             this.properties.sellPrice = 0; // Dead plants are worethless
+            console.log("Plant on field " + this.plantedAtIndex + " died :(.");
             clearInterval(this.growthTimer); // A dead plant cant grow
-            //FIXME Update apperance
+            this.propertiesChanged();
         };
         /**
          * Fertilizes the plant
@@ -62,6 +72,9 @@ var Classes;
          */
         Plant.prototype.getAmountFertilized = function () {
             return this.amountFertilized;
+        };
+        Plant.prototype.getProperties = function () {
+            return this.properties;
         };
         /**
          * Checks whether the plant is infected with a Bug
@@ -114,8 +127,9 @@ var Classes;
                         this.growthStage = Classes.Growth.Harvest;
                         // ...and cant grow further
                         clearInterval(this.growthTimer);
-                        //FIXME Update Apperance
                         console.log("Plant is harvestable");
+                        console.log(this.properties.appearance);
+                        this.propertiesChanged();
                     }
                     else {
                         this.die(); // Not enough water -> Ded
@@ -135,6 +149,7 @@ var Classes;
                         this.growthStage = Classes.Growth.Growing;
                         //FIXME Update Appearance
                         console.log("A Plant grew");
+                        this.propertiesChanged();
                     }
                     else {
                         this.die(); // Not enough water -> Ded
@@ -151,22 +166,25 @@ var Classes;
          */
         Plant.prototype.getStatistics = function () {
             // https://www.geeksforgeeks.org/how-to-create-multi-line-strings-in-javascript/
-            var statistics = "Growth stage : " + this.growthStage.toString() + "\n" +
-                "Water: " + this.amountWatered + " / " + this.properties.waterNeeded + "\n" +
-                "Fertilizer : " + this.amountFertilized + " / " + this.properties.fertilizerNeeded + "\n" +
-                "Possible profit : " + (this.properties.sellPrice - this.properties.buyPrice) + "\n" +
-                "\n";
+            var statistics = "<table border='1'>" +
+                "<tr>" +
+                "<td>" + "Growth stage : " + "</td><td>" + this.growthStage.toString() + "</td>" +
+                "</tr><tr>" +
+                "<td>" + "Water: " + "</td><td>" + this.amountWatered + " / " + this.properties.waterNeeded + "</td>" +
+                "</tr><tr>" +
+                "<td>" + "Fertilizer : " + "</td><td>" + this.amountFertilized + " / " + this.properties.fertilizerNeeded + "</td>" +
+                "</tr><tr>" +
+                "<td>" + "Possible profit : " + "</td><td>" + (this.properties.sellPrice - this.properties.buyPrice) + "</td>" +
+                "</tr></table>";
             //TODO Add more statistics
-            if (this.isDead()) {
-                statistics = "This plant is dead. Great. Good job. Poor plan(t)ing :(";
-                return statistics;
-            }
             if (this.isHarvestable()) {
                 statistics =
                     "Plant is ready for harvest!\n" +
                         "Sell price will be : " + this.properties.sellPrice + "\n" +
                         "Your profit: " + (this.properties.sellPrice - this.properties.buyPrice) + "\n";
-                return statistics;
+            }
+            if (this.isDead()) {
+                statistics = "This plant is dead. Great. Good job. Poor plan(t)ing :(";
             }
             return statistics;
         };
