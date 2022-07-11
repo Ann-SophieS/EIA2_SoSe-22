@@ -20,12 +20,27 @@ var Classes;
             // Generate random price multiplicator between 1.5 and 0.5
             this.priceVaryMultiplicator = Math.random() * (1.5 - 0.5) + 0.5;
         };
+        Shop.prototype.drawShop = function (table) {
+            for (var i = 0; i <= this.items.length - 1; i++) {
+                //https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableElement/insertRow
+                var newRow = table.insertRow(-1);
+                newRow.addEventListener("click", this.buyItem.bind(this, this.items[i]), false);
+                // Insert a cell in the row at index 0
+                var textCell = newRow.insertCell(0);
+                var imageCell = newRow.insertCell(0);
+                imageCell.innerHTML = "<img width='100' height='100' src='" + this.items[i].shopThumbnail + "'/>";
+                // Append a text node to the cell
+                var newText = document.createTextNode(this.items[i].name);
+                textCell.appendChild(newText);
+            }
+        };
         /**
          * Buys an item from the shop
          * @param item The item that was bought
          * @returns True if the purchase was successful
          */
         Shop.prototype.buyItem = function (item) {
+            console.log("User wants to buy : " + item.name);
             if (this.associatedGame.makeTransaction(item.price) == false) {
                 return false;
             }

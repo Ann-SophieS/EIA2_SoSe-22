@@ -15,12 +15,35 @@ export class Shop {
 		this.priceVaryMultiplicator = Math.random() * (1.5 - 0.5) + 0.5;
 	}
 
+	public drawShop(table : HTMLTableElement) : void{
+
+		for(let i = 0; i <= this.items.length-1; i++){
+			//https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableElement/insertRow
+		let newRow = table.insertRow(-1);
+		newRow.addEventListener("click",this.buyItem.bind(this,this.items[i]),false);
+
+		// Insert a cell in the row at index 0
+		let textCell = newRow.insertCell(0);
+		let imageCell = newRow.insertCell(0);
+		
+		imageCell.innerHTML="<img width='100' height='100' src='" + this.items[i].shopThumbnail + "'/>";
+		
+		// Append a text node to the cell
+		let newText = document.createTextNode(this.items[i].name);
+		textCell.appendChild(newText);
+		}
+
+		
+	}
+
 	/**
 	 * Buys an item from the shop
 	 * @param item The item that was bought
 	 * @returns True if the purchase was successful
 	 */
 	public buyItem(item : Item) : boolean{
+
+		console.log("User wants to buy : " + item.name)
 
 		if(this.associatedGame.makeTransaction(item.price) == false){
 			return false;

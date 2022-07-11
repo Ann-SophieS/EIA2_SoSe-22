@@ -66,6 +66,7 @@ var Classes;
             }
             // If all is good, plant the plant
             this.slots[fieldIndex] = plant;
+            this.drawField();
             return true;
         };
         Field.prototype.drawField = function () {
@@ -73,18 +74,51 @@ var Classes;
             var h = 0;
             w = this.associatedGame.renderingContext.canvas.width; //FIXME Static values
             h = this.associatedGame.renderingContext.canvas.height;
-            w *= 0.75; // Make field 3/4 of canvas size, 1/4 is sidebar
+            //w *= 0.75; // Make field 3/4 of canvas size, 1/4 is sidebar
             var fieldSizePX = (w / (Math.floor(Math.sqrt(this.fieldSize))));
-            for (var x = 0; x <= w; x += fieldSizePX) {
-                for (var y = 0; y <= h; y += fieldSizePX) {
+            this.associatedGame.renderingContext.clearRect(0, 0, w, h);
+            var innerIndex = 0;
+            for (var y = 0; y <= h; y += fieldSizePX) {
+                for (var x = 0; x <= w; x += fieldSizePX) {
                     this.associatedGame.renderingContext.moveTo(x, 0);
                     this.associatedGame.renderingContext.lineTo(x, h);
                     this.associatedGame.renderingContext.stroke();
+                    if (x >= fieldSizePX && x <= w && y >= fieldSizePX && y <= h) {
+                        var fieldText = innerIndex.toString();
+                        if (this.slots[innerIndex] != null) {
+                            fieldText += "\nPlant";
+                        }
+                        if (this.selectedSlot == innerIndex) {
+                            fieldText += "\nSelected"; //TODO Print stats to sidebar
+                        }
+                        this.associatedGame.renderingContext.moveTo(x - (fieldSizePX * 0.5), y - (fieldSizePX * 0.5));
+                        this.associatedGame.renderingContext.fillText(fieldText, x - (fieldSizePX * 0.5), y - (fieldSizePX * 0.5));
+                        //this.associatedGame.renderingContext.arc(x-(fieldSizePX*0.5), y-(fieldSizePX*0.5), (fieldSizePX*0.25), 0, 2 * Math.PI, false);
+                        this.associatedGame.renderingContext.fill();
+                        this.associatedGame.renderingContext.stroke();
+                        innerIndex++;
+                    }
                     this.associatedGame.renderingContext.moveTo(0, y);
                     this.associatedGame.renderingContext.lineTo(w, y);
                     this.associatedGame.renderingContext.stroke();
                 }
             }
+        };
+        /**
+         * Handles the event if the user clicked the field
+         * @param x X coordinate the user has clicked
+         * @param y Y coordinate the user has clicked
+         */
+        Field.prototype.handleClick = function (x, y) {
+            var fieldSizePX = ((this.associatedGame.renderingContext.canvas.width) / (Math.floor(Math.sqrt(this.fieldSize))));
+            var row = Math.trunc(x / fieldSizePX) % Math.floor(Math.sqrt(this.fieldSize));
+            var col = Math.trunc(y / fieldSizePX) % Math.floor(Math.sqrt(this.fieldSize));
+            console.log("Field size is: " + fieldSizePX);
+            console.log("Row : " + row);
+            console.log("Col : " + col);
+            console.log("User Clicked at index : " + ((col * Math.floor(Math.sqrt(this.fieldSize))) + row));
+            this.selectedSlot = ((col * Math.floor(Math.sqrt(this.fieldSize))) + row);
+            this.drawField();
         };
         /**
          * Handles random Bug infections on the field
