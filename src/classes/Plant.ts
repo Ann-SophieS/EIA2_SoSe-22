@@ -8,12 +8,14 @@ export class Plant {
 	private infected : Bug;
 	private growthTimer : NodeJS.Timer;
 	private properties : PlantProperties;
-	private associatedField : Field;
+	public associatedField : Field; //FIXME Private
 	private plantedAtIndex : number;
+	private dead : boolean;
 
 	public setPlanted(plantedOn : Field, plantedAt : number){
 		this.associatedField = plantedOn;
 		this.plantedAtIndex = plantedAt;
+		this.growthTimer = setInterval(this.growTimerTick.bind(this), (1000*this.associatedField.getTimescale())); //FIXME Adjust to timescale
 	}
 
 	private propertiesChanged(){
@@ -44,8 +46,8 @@ export class Plant {
 	/**
 	 * Makes a plant die
 	 */
-	private die() : void {
-		this.properties.sellPrice = 0; // Dead plants are worethless
+	public die() : void {
+		this.dead = true;
 		 
 		console.log("Plant on field " + this.plantedAtIndex +  " died :(.")
 		clearInterval(this.growthTimer); // A dead plant cant grow
@@ -111,7 +113,11 @@ export class Plant {
 	 */
 	public harvest() : number {
 		if(this.isHarvestable()){
-			return this.properties.sellPrice;
+			if(this.isDead()){
+				return 0;
+			}else{
+				return this.properties.sellPrice;
+			}			
 		}else{
 			return -1;
 		}
@@ -157,7 +163,6 @@ export class Plant {
 				if(this.amountFertilized >= Math.floor(this.properties.waterNeeded/2)){
 					// If the plant had enough water and fertilizer, it grows
 					this.growthStage = Growth.Growing;
-					//FIXME Update Appearance
 					console.log("A Plant grew")
 					this.propertiesChanged();
 				}else{
@@ -196,6 +201,7 @@ export class Plant {
 			"Plant is ready for harvest!\n" +
 			"Sell price will be : " + this.properties.sellPrice +"\n" +
 			"Your profit: " + (this.properties.sellPrice - this.properties.buyPrice) + "\n";
+			
 		}
 
 		if(this.isDead()){
@@ -250,11 +256,7 @@ export class Plant {
 	 * @returns True if the plant is dead, else false
 	 */
 	public isDead() : boolean{
-		if(this.properties.sellPrice == 0){
-			return true;
-		}else{
-			return false;
-		}
+		return this.dead;
 	}
 
 	public constructor(properties : PlantProperties){
@@ -264,9 +266,10 @@ export class Plant {
 		this.amountFertilized = 0;
 		this.infected = null; 
 		// https://stackoverflow.com/questions/2001920/calling-a-class-prototype-method-by-a-setinterval-event
-		this.growthTimer = setInterval(this.growTimerTick.bind(this), 5000); //FIXME Adjust to timescale
+		
 		// bind value source to class plant (this)
 		this.properties = properties;
+		this.dead = false;
 	}
 
 }

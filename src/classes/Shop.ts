@@ -15,26 +15,40 @@ export class Shop {
 		this.priceVaryMultiplicator = Math.random() * (1.5 - 0.5) + 0.5;
 	}
 
-	public drawShop(table : HTMLTableElement) : void{
+	public drawShop() : void{
 
 		for(let i = 0; i <= this.items.length-1; i++){
 			//https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableElement/insertRow
-		let newRow = table.insertRow(-1);
+		let newRow = this.associatedGame.shopTable.insertRow(-1);
+		let propsRow = this.associatedGame.shopTable.insertRow(-1);
 		newRow.addEventListener("click",this.buyItem.bind(this,this.items[i]),false);
+		propsRow.addEventListener("click",this.buyItem.bind(this,this.items[i]),false);
 
 		// Insert a cell in the row at index 0
+		
+		
+		let propertiesCell = propsRow.insertCell(0);
 		let textCell = newRow.insertCell(0);
 		let imageCell = newRow.insertCell(0);
-		
+		imageCell.rowSpan = 2;
 		imageCell.innerHTML="<img width='100' height='100' src='" + this.items[i].shopThumbnail + "'/>";
+				// Append a text node to the cell 
+		textCell.appendChild(document.createTextNode(this.items[i].name));
+
+		if(this.items[i].constructor.name == PlantItem.name){
+			propertiesCell.innerHTML = ("Cost : " + this.items[i].price.toString() + "<br>" + 
+														   	   "Grow time : " + (<PlantItem>this.items[i]).properties.totalGrowTime + " seconds<br>" +
+															   "Sell Price : " + (<PlantItem>this.items[i]).properties.sellPrice + "<br>"+
+															   "Needs: " + (<PlantItem>this.items[i]).properties.fertilizerNeeded + " fertilizer and " + (<PlantItem>this.items[i]).properties.waterNeeded + " water" );
 		
-		// Append a text node to the cell
-		let newText = document.createTextNode(this.items[i].name);
-		textCell.appendChild(newText);
+		}else{
+			propertiesCell.innerHTML = (("Kosten : " + this.items[i].price.toString() + "\n"));
 		}
 
 		
-	}
+
+		
+	}}
 
 	/**
 	 * Buys an item from the shop
@@ -45,14 +59,18 @@ export class Shop {
 
 		console.log("User wants to buy : " + item.name)
 
-		if(this.associatedGame.makeTransaction(item.price) == false){
-			return false;
-		}
 		// https://stackoverflow.com/questions/13613524/get-an-objects-class-name-at-runtime
 		if(item.constructor.name == PlantItem.name){ // If the bought item is a plant...
 			//give selected item the properties of the clicked plant item
 			let toPlant : Plant = new Plant((<PlantItem>item).properties);
-			return this.associatedField.plantAtSelected(toPlant); 
+			if(this.associatedField.plantAtSelected(toPlant)){
+				if(this.associatedGame.removeMoney(item.price) == false){
+					return false;
+				}
+			}else{
+				return true; 
+			}
+			
 
 		}else if(item.constructor.name == UtilityItem.name){ // If the bought item is a utility...
 
@@ -60,6 +78,9 @@ export class Shop {
 
 			if(selectedPlant != null){
 
+				if(this.associatedGame.removeMoney(item.price) == false){
+					return false;
+				}
 				selectedPlant.processEffect((<UtilityItem>item).effectOnPlant);
 				this.associatedField.drawCurrentSlot();
 				return true;

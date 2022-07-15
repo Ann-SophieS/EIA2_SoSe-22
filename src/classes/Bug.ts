@@ -1,18 +1,29 @@
 namespace Classes{
 export class Bug {
 
-	private killProgress; // Timer
+	private killTimer; // Timer
+	private killProgress;
 	private infectedPlant : Plant;
 	private killTime : number;
 
 	private timerTick() : void{
-		// TODO - implement Bug.timerTick
-		throw new Error("Not implemented!");
+		this.killProgress++;
+		if(this.killProgress > this.killTime){
+			this.infectedPlant.die();
+			clearInterval(this.killTimer);
+		}
 	}
 
 	public fix() : void{
-		// TODO - implement Bug.fix
-		throw new Error("Not implemented!");
+		clearInterval(this.killTimer);
+		this.infectedPlant = null;
+	}
+
+	constructor(infectedPlant : Plant){
+		this.infectedPlant = infectedPlant;
+		this.killProgress = 0;
+		this.killTime = 5; //FIXME Static value
+		this.killTimer = setInterval(this.timerTick.bind(this), 1000); // FIXME Timescale
 	}
 
 }

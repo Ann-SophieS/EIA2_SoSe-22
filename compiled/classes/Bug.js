@@ -1,15 +1,22 @@
 var Classes;
 (function (Classes) {
     var Bug = /** @class */ (function () {
-        function Bug() {
+        function Bug(infectedPlant) {
+            this.infectedPlant = infectedPlant;
+            this.killProgress = 0;
+            this.killTime = 5; //FIXME Static value
+            this.killTimer = setInterval(this.timerTick.bind(this), 1000); // FIXME Timescale
         }
         Bug.prototype.timerTick = function () {
-            // TODO - implement Bug.timerTick
-            throw new Error("Not implemented!");
+            this.killProgress++;
+            if (this.killProgress > this.killTime) {
+                this.infectedPlant.die();
+                clearInterval(this.killTimer);
+            }
         };
         Bug.prototype.fix = function () {
-            // TODO - implement Bug.fix
-            throw new Error("Not implemented!");
+            clearInterval(this.killTimer);
+            this.infectedPlant = null;
         };
         return Bug;
     }());

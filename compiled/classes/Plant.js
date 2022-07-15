@@ -8,13 +8,14 @@ var Classes;
             this.amountFertilized = 0;
             this.infected = null;
             // https://stackoverflow.com/questions/2001920/calling-a-class-prototype-method-by-a-setinterval-event
-            this.growthTimer = setInterval(this.growTimerTick.bind(this), 5000); //FIXME Adjust to timescale
             // bind value source to class plant (this)
             this.properties = properties;
+            this.dead = false;
         }
         Plant.prototype.setPlanted = function (plantedOn, plantedAt) {
             this.associatedField = plantedOn;
             this.plantedAtIndex = plantedAt;
+            this.growthTimer = setInterval(this.growTimerTick.bind(this), (1000 * this.associatedField.getTimescale())); //FIXME Adjust to timescale
         };
         Plant.prototype.propertiesChanged = function () {
             this.associatedField.drawSlot(this.plantedAtIndex);
@@ -43,7 +44,7 @@ var Classes;
          * Makes a plant die
          */
         Plant.prototype.die = function () {
-            this.properties.sellPrice = 0; // Dead plants are worethless
+            this.dead = true;
             console.log("Plant on field " + this.plantedAtIndex + " died :(.");
             clearInterval(this.growthTimer); // A dead plant cant grow
             this.propertiesChanged();
@@ -103,7 +104,12 @@ var Classes;
          */
         Plant.prototype.harvest = function () {
             if (this.isHarvestable()) {
-                return this.properties.sellPrice;
+                if (this.isDead()) {
+                    return 0;
+                }
+                else {
+                    return this.properties.sellPrice;
+                }
             }
             else {
                 return -1;
@@ -147,7 +153,6 @@ var Classes;
                     if (this.amountFertilized >= Math.floor(this.properties.waterNeeded / 2)) {
                         // If the plant had enough water and fertilizer, it grows
                         this.growthStage = Classes.Growth.Growing;
-                        //FIXME Update Appearance
                         console.log("A Plant grew");
                         this.propertiesChanged();
                     }
@@ -231,12 +236,7 @@ var Classes;
          * @returns True if the plant is dead, else false
          */
         Plant.prototype.isDead = function () {
-            if (this.properties.sellPrice == 0) {
-                return true;
-            }
-            else {
-                return false;
-            }
+            return this.dead;
         };
         return Plant;
     }());

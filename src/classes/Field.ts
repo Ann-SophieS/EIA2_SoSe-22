@@ -5,7 +5,7 @@ export class Field {
 	private slots : Plant[];
 	selectedSlot : number; //FIXME Private
 	private generateBugTimer : NodeJS.Timer;
-	private associatedGame : Game;
+	public associatedGame : Game; //FIXME Private
 
 	/**
 	 * Check plant on a specific position on the field
@@ -127,14 +127,33 @@ export class Field {
 				this.associatedGame.renderingContext.fillText((this.slots[index].getAmountWatered() + " / "  + this.slots[index].getProperties().waterNeeded),startX+(fieldSizePX*0.1), startY+(fieldSizePX*0.2));
 				this.associatedGame.renderingContext.fillStyle = 'green'; //Second text (fertilizer) will be green
 				this.associatedGame.renderingContext.fillText((this.slots[index].getAmountFertilized() + " / "  + this.slots[index].getProperties().fertilizerNeeded),startX+(fieldSizePX*0.1), startY+(fieldSizePX*0.3));
+				if(this.slots[index].isInfected()){
+					this.associatedGame.renderingContext.fillStyle = 'red'; //Second text (fertilizer) will be green
+				this.associatedGame.renderingContext.fillText(("Infected"),startX+(fieldSizePX*0.1), startY+(fieldSizePX*0.9));
+				}
+				
 				this.associatedGame.renderingContext.fillStyle = 'black'; // Reset the text color
-			})		
+			})
+			if(this.slots[index].isHarvestable()){
+				if(this.slots[index].isDead()){
+					this.associatedGame.renderingContext.strokeStyle = "red";
+				}else{
+					this.associatedGame.renderingContext.strokeStyle = "green";
+				}
+				
+				this.associatedGame.renderingContext.strokeRect(startX+4,startY+4,fieldSizePX-8,fieldSizePX-8); // Draw border around selected field
+				this.associatedGame.renderingContext.strokeStyle = "black";
+			}		
 			
 		}
 
 		if(this.selectedSlot == index){
+			this.associatedGame.renderingContext.strokeStyle = "blue";
 			this.associatedGame.renderingContext.strokeRect(startX+2,startY+2,fieldSizePX-4,fieldSizePX-4); // Draw border around selected field
+			this.associatedGame.renderingContext.strokeStyle = "black";
 		}
+
+		
 		//Show the index of the field //FIXME remove
 		this.associatedGame.renderingContext.moveTo(startX+(fieldSizePX*0.5), startY+(fieldSizePX*0.5));
 		this.associatedGame.renderingContext.fillText(fieldText,startX+(fieldSizePX*0.5), startY+(fieldSizePX*0.5));
@@ -150,6 +169,10 @@ export class Field {
 	 */
 	public drawCurrentSlot() : void{
 		this.drawSlot(this.selectedSlot);
+	}
+
+	public getTimescale() : number{
+		return this.associatedGame.getTimescale();
 	}
 
 
@@ -170,6 +193,15 @@ export class Field {
 		let oldSlot = this.selectedSlot;
 		this.selectedSlot = ((col*Math.floor(Math.sqrt(this.fieldSize)))+row);
 		this.drawSlot(oldSlot);
+		if(this.slots[this.selectedSlot] != null){
+			if(this.slots[this.selectedSlot].isHarvestable()){
+				let sellPrice = this.harvestPlantAtSelected();
+				if(sellPrice != -1){
+					this.associatedGame.addMoney(sellPrice);
+				}
+			}
+		}
+		
 		this.drawSlot(this.selectedSlot);
 		
 		
@@ -179,29 +211,44 @@ export class Field {
 	 * Handles random Bug infections on the field
 	 */
 	private bugTimerTick() : void {
+
+		// Chance to infect
+		if(Math.random() > 0.05){ // 5% chance
+			return; // Don't try to infect
+		}
+
 		let plantedFields : number[] = [];
 		
 		// Find indexes of fields that have plants on it
 		for (let field = 0; field <= this.fieldSize; field++) {
-
 			if(this.slots[field] != null){ // If there is a plant in the current field...
 
 				plantedFields.push(field); // ...add its index to plantedFields
 
 			}		
 		}
-
+		console.log("possible plants to infect are")
+		console.log(plantedFields);
 		if(plantedFields.length == 0){
 			return; // Point of no return
 		}
-			
 
+		
+
+		
+
+		
 		// https://www.cloudhadoop.com/javascript-get-random-element-array/
-		let randomIndex=Math.floor(Math.random()*plantedFields.length); // Pick random plant from plantedFields
-		if(this.slots[randomIndex].isInfected()){
+		let randomIndex=plantedFields[Math.floor(Math.random()*plantedFields.length)]; // Pick random plant from plantedFields
+		
+
+		console.log("Random index: " + randomIndex);
+		
+		if(this.slots[randomIndex].isInfected() || this.slots[randomIndex].isDead()){
 			return; // If picked plant is already infected, do nothing
 		}else{
-			this.slots[randomIndex].becomeInfected(new Bug()); // Infect plant
+			this.slots[randomIndex].becomeInfected(new Bug(this.slots[randomIndex])); // Infect plant
+			this.drawSlot(randomIndex);
 		}
 	}
 
@@ -215,7 +262,7 @@ export class Field {
 		this.slots.fill(null,0,fieldSize); // Fill array with nulls 
 		this.selectedSlot = -1; // -1 can never be reached (User has not yet selected a field at the beginning)
 		// FIXME Bug timer not adjusted to timescale
-		this.generateBugTimer = setInterval(this.bugTimerTick, 1000);
+		this.generateBugTimer = setInterval(this.bugTimerTick.bind(this), 1000); //FIXME Timescale
 		this.associatedGame = associatedGame;
 		this.drawField();
 	}
