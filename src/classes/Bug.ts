@@ -22,8 +22,9 @@ export class Bug {
 	constructor(infectedPlant : Plant){
 		this.infectedPlant = infectedPlant;
 		this.killProgress = 0;
-		this.killTime = 5; //FIXME Static value
+		this.killTime = 30; //FIXME Static value
 		this.killTimer = setInterval(this.timerTick.bind(this), 1000); // FIXME Timescale
+		//this.animate();		
 	}
 
 }

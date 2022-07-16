@@ -5,20 +5,22 @@ var Classes;
          * Sets up shop
          * @param associatedField Field the shop is associated to
          */
-        function Shop(associatedField, associatedGame) {
+        function Shop(associatedField, associatedGame, minPriceVariation, maxPriceVariation) {
             this.timer = setInterval(this.varyPrices.bind(this), 60000); //FIXME Adjust timer to timescale
             this.priceVaryMultiplicator = 1;
             this.items = [];
             this.associatedField = associatedField;
             this.associatedGame = associatedGame;
+            this.minPriceVariation = minPriceVariation;
+            this.maxPriceVariation = maxPriceVariation;
         }
         /**
          * Handles price fluctuations (timer)
          */
         Shop.prototype.varyPrices = function () {
             // https://www.codegrepper.com/code-examples/javascript/get+random+number+between+range+typescript
-            // Generate random price multiplicator between 1.5 and 0.5
-            this.priceVaryMultiplicator = Math.random() * (1.5 - 0.5) + 0.5;
+            // Generate random price multiplicator between maxPriceVariation and minPriceVariation
+            this.priceVaryMultiplicator = Math.random() * (this.maxPriceVariation - this.minPriceVariation) + this.minPriceVariation;
             for (var item = 0; item <= this.items.length; item++) {
                 if (this.items[item] != null) {
                     this.items[item].buyPriceModifier = Math.floor((this.items[item].price * this.priceVaryMultiplicator) - this.items[item].price);

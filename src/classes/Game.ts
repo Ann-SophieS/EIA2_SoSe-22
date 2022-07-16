@@ -36,7 +36,7 @@ export class Game {
         return this.timescale;
     }
 
-    constructor(gameTable : HTMLTableElement){
+    constructor(gameTable : HTMLTableElement, startMoney : number, minPriceVariation : number ,maxPriceVariation : number){
         // https://github.com/JirkaDellOro/EIA2-Inverted/blob/master/X00_Code/L08_Canvas/Alley/Alley.ts
         this.canvas = <HTMLCanvasElement>gameTable.getElementsByClassName("field")[0]; // if element not found on site, canvas is null
         this.shopTable = <HTMLTableElement>gameTable.getElementsByClassName("shop")[0];
@@ -48,9 +48,9 @@ export class Game {
 
         //FIXME Set all values dynamically in parametrized constructor
         this.timescale = 1;
-        this.money = 1000; //FIXME dynamic
+        this.money = startMoney; //FIXME dynamic
         this.gameField = new Field((8*8),this);          // Calls constructor of Field, size has to be square number
-        this.gameShop = new Shop(this.gameField,this);   // Calls constructor of Shop
+        this.gameShop = new Shop(this.gameField,this, minPriceVariation, maxPriceVariation);   // Calls constructor of Shop
         this.moneyDiv.innerHTML = "Money : " + this.money;
 
         this.canvas.addEventListener('click', (event)=>{ // Click event on canvas

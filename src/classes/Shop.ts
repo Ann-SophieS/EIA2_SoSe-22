@@ -5,14 +5,16 @@ export class Shop {
 	items : Item[]; // FIXME Private
 	private associatedField : Field;
 	private associatedGame : Game;
+	private minPriceVariation : number;
+	private maxPriceVariation : number;
 
 	/**
 	 * Handles price fluctuations (timer)
 	 */
 	public varyPrices() : void{
 		// https://www.codegrepper.com/code-examples/javascript/get+random+number+between+range+typescript
-		// Generate random price multiplicator between 1.5 and 0.5
-		this.priceVaryMultiplicator = Math.random() * (1.5 - 0.5) + 0.5;
+		// Generate random price multiplicator between maxPriceVariation and minPriceVariation
+		this.priceVaryMultiplicator = Math.random() * (this.maxPriceVariation - this.minPriceVariation) + this.minPriceVariation;
 		for(let item = 0; item <= this.items.length; item++){
 			if(this.items[item] != null){
 				this.items[item].buyPriceModifier = Math.floor((this.items[item].price * this.priceVaryMultiplicator)-this.items[item].price);
@@ -127,12 +129,14 @@ export class Shop {
 	 * Sets up shop
 	 * @param associatedField Field the shop is associated to
 	 */
-	public constructor(associatedField : Field, associatedGame : Game){
+	public constructor(associatedField : Field, associatedGame : Game, minPriceVariation : number, maxPriceVariation : number){
 		this.timer = setInterval(this.varyPrices.bind(this), 60000); //FIXME Adjust timer to timescale
 		this.priceVaryMultiplicator = 1;
 		this.items = [];
 		this.associatedField = associatedField;
 		this.associatedGame = associatedGame;
+		this.minPriceVariation = minPriceVariation;
+		this.maxPriceVariation = maxPriceVariation;
 	}
 
 }

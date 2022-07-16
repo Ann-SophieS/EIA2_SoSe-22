@@ -158,8 +158,8 @@ export class Field {
 
 		
 		//Show the index of the field //FIXME remove
-		this.associatedGame.renderingContext.moveTo(startX+(fieldSizePX*0.5), startY+(fieldSizePX*0.5));
-		this.associatedGame.renderingContext.fillText(fieldText,startX+(fieldSizePX*0.5), startY+(fieldSizePX*0.5));
+		//this.associatedGame.renderingContext.moveTo(startX+(fieldSizePX*0.5), startY+(fieldSizePX*0.5));
+		//this.associatedGame.renderingContext.fillText(fieldText,startX+(fieldSizePX*0.5), startY+(fieldSizePX*0.5));
 		
 		
 
@@ -217,7 +217,7 @@ export class Field {
 
 		// Chance to infect
 		if(Math.random() > 0.05){ // 5% chance
-			return; // No Bug generated
+			return; // No Bug generated 
 		}
 
 		let plantedFields : number[] = []; //create plantedFields array -> empty

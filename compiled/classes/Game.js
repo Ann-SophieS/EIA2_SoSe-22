@@ -1,7 +1,7 @@
 var Classes;
 (function (Classes) {
     var Game = /** @class */ (function () {
-        function Game(gameTable) {
+        function Game(gameTable, startMoney, minPriceVariation, maxPriceVariation) {
             var _this = this;
             // https://github.com/JirkaDellOro/EIA2-Inverted/blob/master/X00_Code/L08_Canvas/Alley/Alley.ts
             this.canvas = gameTable.getElementsByClassName("field")[0]; // if element not found on site, canvas is null
@@ -13,9 +13,9 @@ var Classes;
             this.renderingContext = this.canvas.getContext("2d");
             //FIXME Set all values dynamically in parametrized constructor
             this.timescale = 1;
-            this.money = 1000; //FIXME dynamic
+            this.money = startMoney; //FIXME dynamic
             this.gameField = new Classes.Field((8 * 8), this); // Calls constructor of Field, size has to be square number
-            this.gameShop = new Classes.Shop(this.gameField, this); // Calls constructor of Shop
+            this.gameShop = new Classes.Shop(this.gameField, this, minPriceVariation, maxPriceVariation); // Calls constructor of Shop
             this.moneyDiv.innerHTML = "Money : " + this.money;
             this.canvas.addEventListener('click', function (event) {
                 var rect = _this.canvas.getBoundingClientRect(); // Get position of rectangle on the page

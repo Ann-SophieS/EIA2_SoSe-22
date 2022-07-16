@@ -162,15 +162,17 @@ export class Plant {
 			//Check if the plant had enough fertilizer
 			if(this.amountFertilized >= Math.floor(this.properties.fertilizerNeeded/2)){
 				// Check if the plant was watered enough
-				if(this.amountFertilized >= Math.floor(this.properties.waterNeeded/2)){
+				if(this.amountWatered >= Math.floor(this.properties.waterNeeded/2)){
 					// If the plant had enough water and fertilizer, it grows
 					this.growthStage = Growth.Growing;
 					console.log("A Plant grew")
 					this.propertiesChanged();
 				}else{
+					console.log("Plant couldnt grow, not enough water")
 					this.die(); // Not enough water -> Ded
 				}
 			}else{
+				console.log("Plant couldnt grow, not enough fertilizer")
 				this.die(); // Not enough fertilizer -> Ded
 			}
 		}
