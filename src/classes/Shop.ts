@@ -13,9 +13,23 @@ export class Shop {
 		// https://www.codegrepper.com/code-examples/javascript/get+random+number+between+range+typescript
 		// Generate random price multiplicator between 1.5 and 0.5
 		this.priceVaryMultiplicator = Math.random() * (1.5 - 0.5) + 0.5;
+		for(let item = 0; item <= this.items.length; item++){
+			if(this.items[item] != null){
+				this.items[item].buyPriceModifier = Math.floor((this.items[item].price * this.priceVaryMultiplicator)-this.items[item].price);
+				if(this.items[item].constructor.name == PlantItem.name){
+					(<PlantItem>this.items[item]).sellPriceModifier = Math.floor(((<PlantItem>this.items[item]).properties.sellPrice * this.priceVaryMultiplicator)-(<PlantItem>this.items[item]).properties.sellPrice);
+				}
+				
+			}
+			
+		}
+		
+		this.drawShop();
 	}
 
 	public drawShop() : void{
+
+		this.associatedGame.shopTable.innerHTML = "";
 
 		for(let i = 0; i <= this.items.length-1; i++){
 			//https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableElement/insertRow
@@ -36,13 +50,13 @@ export class Shop {
 		textCell.appendChild(document.createTextNode(this.items[i].name));
 
 		if(this.items[i].constructor.name == PlantItem.name){
-			propertiesCell.innerHTML = ("Cost : " + this.items[i].price.toString() + "<br>" + 
+			propertiesCell.innerHTML = ("Cost : " + (this.items[i].price + this.items[i].buyPriceModifier).toString() + "<br>" + 
 														   	   "Grow time : " + (<PlantItem>this.items[i]).properties.totalGrowTime + " seconds<br>" +
-															   "Sell Price : " + (<PlantItem>this.items[i]).properties.sellPrice + "<br>"+
+															   "Sell Price : " + ((<PlantItem>this.items[i]).properties.sellPrice + (<PlantItem>this.items[i]).sellPriceModifier)+ "<br>"+
 															   "Needs: " + (<PlantItem>this.items[i]).properties.fertilizerNeeded + " fertilizer and " + (<PlantItem>this.items[i]).properties.waterNeeded + " water" );
 		
 		}else{
-			propertiesCell.innerHTML = (("Kosten : " + this.items[i].price.toString() + "\n"));
+			propertiesCell.innerHTML = (("Cost : " + (this.items[i].price + this.items[i].buyPriceModifier).toString()  + "\n"));
 		}
 
 		
@@ -62,29 +76,33 @@ export class Shop {
 		// https://stackoverflow.com/questions/13613524/get-an-objects-class-name-at-runtime
 		if(item.constructor.name == PlantItem.name){ // If the bought item is a plant...
 			//give selected item the properties of the clicked plant item
-			let toPlant : Plant = new Plant((<PlantItem>item).properties);
-			if(this.associatedField.plantAtSelected(toPlant)){
-				if(this.associatedGame.removeMoney(item.price) == false){
-					return false;
+			if(this.associatedGame.removeMoney(item.price + item.buyPriceModifier) == true){
+				let toPlant : Plant = new Plant((<PlantItem>item).properties);
+				if(this.associatedField.plantAtSelected(toPlant) == false){
+					this.associatedGame.addMoney(item.price + item.buyPriceModifier)					
+				}else{
+					return true; 
 				}
 			}else{
-				return true; 
+
 			}
 			
 
 		}else if(item.constructor.name == UtilityItem.name){ // If the bought item is a utility...
 
 			let selectedPlant : Plant = this.associatedField.getPlantAtSelected();
+			if(this.associatedGame.removeMoney(item.price + item.buyPriceModifier) == true){
+				
+				if(selectedPlant != null){				
+					selectedPlant.processEffect((<UtilityItem>item).effectOnPlant);
+					this.associatedField.drawCurrentSlot();
+					return true;
 
-			if(selectedPlant != null){
-
-				if(this.associatedGame.removeMoney(item.price) == false){
+				}else{
+					this.associatedGame.addMoney(item.price + item.buyPriceModifier)
 					return false;
 				}
-				selectedPlant.processEffect((<UtilityItem>item).effectOnPlant);
-				this.associatedField.drawCurrentSlot();
-				return true;
-
+				
 			}
 		}
 		return false;
@@ -110,7 +128,7 @@ export class Shop {
 	 * @param associatedField Field the shop is associated to
 	 */
 	public constructor(associatedField : Field, associatedGame : Game){
-		this.timer = setInterval(this.varyPrices, 60000); //FIXME Adjust timer to timescale
+		this.timer = setInterval(this.varyPrices.bind(this), 60000); //FIXME Adjust timer to timescale
 		this.priceVaryMultiplicator = 1;
 		this.items = [];
 		this.associatedField = associatedField;

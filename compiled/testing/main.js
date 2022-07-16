@@ -3,11 +3,8 @@ var Classes;
     window.addEventListener("load", handleLoad);
     function handleLoad(_event) {
         var mainGame = new Classes.Game(document.getElementById("#gameTable1"));
-        console.log("Game created!");
         populateShop(mainGame.gameShop);
         mainGame.gameShop.drawShop();
-        mainGame.money = 1000;
-        mainGame.gameField.selectedSlot = 0;
     }
     function populateShop(shop) {
         var carrotItem = new Classes.PlantItem(new Classes.PlantProperties(20, // totalGrowTime
@@ -24,7 +21,7 @@ var Classes;
         var potatoItem = new Classes.PlantItem(new Classes.PlantProperties(60, // totalGrowTime
         2, // fertilizerNeeded
         2, // waterNeeded
-        100, // buyPrice
+        200, // buyPrice
         200, // sellPrice
         [
             "https://cdn.wallpapersafari.com/86/41/FfVRah.jpg",

@@ -5,11 +5,10 @@ var Classes;
             this.properties = plantProperties;
             this.price = plantProperties.buyPrice;
             this.name = plantProperties.name;
+            this.buyPriceModifier = 0;
+            this.sellPriceModifier = 0;
             this.shopThumbnail = plantProperties.appearance[0]; //FIXME Change ?
         }
-        PlantItem.prototype.varyPrice = function (multiplicator) {
-            throw new Error("Method not implemented.");
-        };
         return PlantItem;
     }());
     Classes.PlantItem = PlantItem;

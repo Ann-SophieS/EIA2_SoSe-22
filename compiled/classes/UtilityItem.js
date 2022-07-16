@@ -5,11 +5,9 @@ var Classes;
             this.price = price;
             this.name = name;
             this.shopThumbnail = shopThumbnail;
+            this.buyPriceModifier = 0;
             this.effectOnPlant = effectOnPlant;
         }
-        UtilityItem.prototype.varyPrice = function (multiplicator) {
-            throw new Error("Method not implemented.");
-        };
         return UtilityItem;
     }());
     Classes.UtilityItem = UtilityItem;

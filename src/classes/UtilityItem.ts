@@ -4,10 +4,7 @@ export class UtilityItem implements Item {
     price: number;
     name: string;
     shopThumbnail: string;
-    varyPrice(multiplicator: number): void {
-        throw new Error("Method not implemented.");
-    }
-
+    buyPriceModifier: number;
 	effectOnPlant : Effect;
 
     constructor(price: number,
@@ -17,8 +14,11 @@ export class UtilityItem implements Item {
             this.price = price;
             this.name = name;
             this.shopThumbnail = shopThumbnail;
+            this.buyPriceModifier = 0;
             this.effectOnPlant = effectOnPlant;
         }
+    
+    
 
 }
 }

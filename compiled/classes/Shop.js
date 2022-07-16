@@ -6,7 +6,7 @@ var Classes;
          * @param associatedField Field the shop is associated to
          */
         function Shop(associatedField, associatedGame) {
-            this.timer = setInterval(this.varyPrices, 60000); //FIXME Adjust timer to timescale
+            this.timer = setInterval(this.varyPrices.bind(this), 60000); //FIXME Adjust timer to timescale
             this.priceVaryMultiplicator = 1;
             this.items = [];
             this.associatedField = associatedField;
@@ -19,8 +19,18 @@ var Classes;
             // https://www.codegrepper.com/code-examples/javascript/get+random+number+between+range+typescript
             // Generate random price multiplicator between 1.5 and 0.5
             this.priceVaryMultiplicator = Math.random() * (1.5 - 0.5) + 0.5;
+            for (var item = 0; item <= this.items.length; item++) {
+                if (this.items[item] != null) {
+                    this.items[item].buyPriceModifier = Math.floor((this.items[item].price * this.priceVaryMultiplicator) - this.items[item].price);
+                    if (this.items[item].constructor.name == Classes.PlantItem.name) {
+                        this.items[item].sellPriceModifier = Math.floor((this.items[item].properties.sellPrice * this.priceVaryMultiplicator) - this.items[item].properties.sellPrice);
+                    }
+                }
+            }
+            this.drawShop();
         };
         Shop.prototype.drawShop = function () {
+            this.associatedGame.shopTable.innerHTML = "";
             for (var i = 0; i <= this.items.length - 1; i++) {
                 //https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableElement/insertRow
                 var newRow = this.associatedGame.shopTable.insertRow(-1);
@@ -36,13 +46,13 @@ var Classes;
                 // Append a text node to the cell 
                 textCell.appendChild(document.createTextNode(this.items[i].name));
                 if (this.items[i].constructor.name == Classes.PlantItem.name) {
-                    propertiesCell.innerHTML = ("Cost : " + this.items[i].price.toString() + "<br>" +
+                    propertiesCell.innerHTML = ("Cost : " + (this.items[i].price + this.items[i].buyPriceModifier).toString() + "<br>" +
                         "Grow time : " + this.items[i].properties.totalGrowTime + " seconds<br>" +
-                        "Sell Price : " + this.items[i].properties.sellPrice + "<br>" +
+                        "Sell Price : " + (this.items[i].properties.sellPrice + this.items[i].sellPriceModifier) + "<br>" +
                         "Needs: " + this.items[i].properties.fertilizerNeeded + " fertilizer and " + this.items[i].properties.waterNeeded + " water");
                 }
                 else {
-                    propertiesCell.innerHTML = (("Kosten : " + this.items[i].price.toString() + "\n"));
+                    propertiesCell.innerHTML = (("Cost : " + (this.items[i].price + this.items[i].buyPriceModifier).toString() + "\n"));
                 }
             }
         };
@@ -56,25 +66,30 @@ var Classes;
             // https://stackoverflow.com/questions/13613524/get-an-objects-class-name-at-runtime
             if (item.constructor.name == Classes.PlantItem.name) { // If the bought item is a plant...
                 //give selected item the properties of the clicked plant item
-                var toPlant = new Classes.Plant(item.properties);
-                if (this.associatedField.plantAtSelected(toPlant)) {
-                    if (this.associatedGame.removeMoney(item.price) == false) {
-                        return false;
+                if (this.associatedGame.removeMoney(item.price + item.buyPriceModifier) == true) {
+                    var toPlant = new Classes.Plant(item.properties);
+                    if (this.associatedField.plantAtSelected(toPlant) == false) {
+                        this.associatedGame.addMoney(item.price + item.buyPriceModifier);
+                    }
+                    else {
+                        return true;
                     }
                 }
                 else {
-                    return true;
                 }
             }
             else if (item.constructor.name == Classes.UtilityItem.name) { // If the bought item is a utility...
                 var selectedPlant = this.associatedField.getPlantAtSelected();
-                if (selectedPlant != null) {
-                    if (this.associatedGame.removeMoney(item.price) == false) {
+                if (this.associatedGame.removeMoney(item.price + item.buyPriceModifier) == true) {
+                    if (selectedPlant != null) {
+                        selectedPlant.processEffect(item.effectOnPlant);
+                        this.associatedField.drawCurrentSlot();
+                        return true;
+                    }
+                    else {
+                        this.associatedGame.addMoney(item.price + item.buyPriceModifier);
                         return false;
                     }
-                    selectedPlant.processEffect(item.effectOnPlant);
-                    this.associatedField.drawCurrentSlot();
-                    return true;
                 }
             }
             return false;

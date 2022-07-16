@@ -7,15 +7,15 @@ var Classes;
             this.amountWatered = 0;
             this.amountFertilized = 0;
             this.infected = null;
-            // https://stackoverflow.com/questions/2001920/calling-a-class-prototype-method-by-a-setinterval-event
-            // bind value source to class plant (this)
             this.properties = properties;
             this.dead = false;
         }
         Plant.prototype.setPlanted = function (plantedOn, plantedAt) {
             this.associatedField = plantedOn;
             this.plantedAtIndex = plantedAt;
-            this.growthTimer = setInterval(this.growTimerTick.bind(this), (1000 * this.associatedField.getTimescale())); //FIXME Adjust to timescale
+            // https://stackoverflow.com/questions/2001920/calling-a-class-prototype-method-by-a-setinterval-event
+            this.growthTimer = setInterval(this.growTimerTick.bind(this), (1000 * this.associatedField.getTimescale()));
+            // bind value source to class plant (this)
         };
         Plant.prototype.propertiesChanged = function () {
             this.associatedField.drawSlot(this.plantedAtIndex);

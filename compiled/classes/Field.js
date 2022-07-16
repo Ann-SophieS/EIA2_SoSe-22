@@ -128,6 +128,7 @@ var Classes;
                     else {
                         this.associatedGame.renderingContext.strokeStyle = "green";
                     }
+                    // 4 Pixel offset because selected border is 2 pixel offset -> both can be seen
                     this.associatedGame.renderingContext.strokeRect(startX + 4, startY + 4, fieldSizePX - 8, fieldSizePX - 8); // Draw border around selected field
                     this.associatedGame.renderingContext.strokeStyle = "black";
                 }
@@ -183,29 +184,26 @@ var Classes;
         Field.prototype.bugTimerTick = function () {
             // Chance to infect
             if (Math.random() > 0.05) { // 5% chance
-                return; // Don't try to infect
+                return; // No Bug generated
             }
-            var plantedFields = [];
+            var plantedFields = []; //create plantedFields array -> empty
             // Find indexes of fields that have plants on it
             for (var field = 0; field <= this.fieldSize; field++) {
                 if (this.slots[field] != null) { // If there is a plant in the current field...
                     plantedFields.push(field); // ...add its index to plantedFields
                 }
             }
-            console.log("possible plants to infect are");
-            console.log(plantedFields);
             if (plantedFields.length == 0) {
-                return; // Point of no return
+                return; // No plant = no bug
             }
             // https://www.cloudhadoop.com/javascript-get-random-element-array/
             var randomIndex = plantedFields[Math.floor(Math.random() * plantedFields.length)]; // Pick random plant from plantedFields
-            console.log("Random index: " + randomIndex);
             if (this.slots[randomIndex].isInfected() || this.slots[randomIndex].isDead()) {
-                return; // If picked plant is already infected, do nothing
+                return; // If picked plant is already infected or dead, do nothing
             }
             else {
-                this.slots[randomIndex].becomeInfected(new Classes.Bug(this.slots[randomIndex])); // Infect plant
-                this.drawSlot(randomIndex);
+                this.slots[randomIndex].becomeInfected(new Classes.Bug(this.slots[randomIndex])); // Infect plant + pass plant data to bug
+                this.drawSlot(randomIndex); //update slot on field
             }
         };
         return Field;

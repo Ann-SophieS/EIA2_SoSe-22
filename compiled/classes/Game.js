@@ -13,7 +13,7 @@ var Classes;
             this.renderingContext = this.canvas.getContext("2d");
             //FIXME Set all values dynamically in parametrized constructor
             this.timescale = 1;
-            this.money = 1000;
+            this.money = 1000; //FIXME dynamic
             this.gameField = new Classes.Field((8 * 8), this); // Calls constructor of Field, size has to be square number
             this.gameShop = new Classes.Shop(this.gameField, this); // Calls constructor of Shop
             this.moneyDiv.innerHTML = "Money : " + this.money;

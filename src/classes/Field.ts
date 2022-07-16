@@ -123,10 +123,13 @@ export class Field {
 			apperance.src = this.slots[index].getCurrentAppearance();
 			apperance.addEventListener("load",()=>{ // Wait till image is loaded 
 				this.associatedGame.renderingContext.drawImage(apperance, startX + 10, startY + 10, fieldSizePX - 20, fieldSizePX - 20);
+
 				this.associatedGame.renderingContext.fillStyle = 'blue'; //First text (water) will be blue
 				this.associatedGame.renderingContext.fillText((this.slots[index].getAmountWatered() + " / "  + this.slots[index].getProperties().waterNeeded),startX+(fieldSizePX*0.1), startY+(fieldSizePX*0.2));
+				
 				this.associatedGame.renderingContext.fillStyle = 'green'; //Second text (fertilizer) will be green
 				this.associatedGame.renderingContext.fillText((this.slots[index].getAmountFertilized() + " / "  + this.slots[index].getProperties().fertilizerNeeded),startX+(fieldSizePX*0.1), startY+(fieldSizePX*0.3));
+				
 				if(this.slots[index].isInfected()){
 					this.associatedGame.renderingContext.fillStyle = 'red'; //Second text (fertilizer) will be green
 				this.associatedGame.renderingContext.fillText(("Infected"),startX+(fieldSizePX*0.1), startY+(fieldSizePX*0.9));
@@ -140,7 +143,7 @@ export class Field {
 				}else{
 					this.associatedGame.renderingContext.strokeStyle = "green";
 				}
-				
+				// 4 Pixel offset because selected border is 2 pixel offset -> both can be seen
 				this.associatedGame.renderingContext.strokeRect(startX+4,startY+4,fieldSizePX-8,fieldSizePX-8); // Draw border around selected field
 				this.associatedGame.renderingContext.strokeStyle = "black";
 			}		
@@ -214,10 +217,10 @@ export class Field {
 
 		// Chance to infect
 		if(Math.random() > 0.05){ // 5% chance
-			return; // Don't try to infect
+			return; // No Bug generated
 		}
 
-		let plantedFields : number[] = [];
+		let plantedFields : number[] = []; //create plantedFields array -> empty
 		
 		// Find indexes of fields that have plants on it
 		for (let field = 0; field <= this.fieldSize; field++) {
@@ -227,28 +230,20 @@ export class Field {
 
 			}		
 		}
-		console.log("possible plants to infect are")
-		console.log(plantedFields);
+
 		if(plantedFields.length == 0){
-			return; // Point of no return
+			return; // No plant = no bug
 		}
-
-		
-
-		
-
 		
 		// https://www.cloudhadoop.com/javascript-get-random-element-array/
 		let randomIndex=plantedFields[Math.floor(Math.random()*plantedFields.length)]; // Pick random plant from plantedFields
 		
-
-		console.log("Random index: " + randomIndex);
 		
 		if(this.slots[randomIndex].isInfected() || this.slots[randomIndex].isDead()){
-			return; // If picked plant is already infected, do nothing
+			return; // If picked plant is already infected or dead, do nothing
 		}else{
-			this.slots[randomIndex].becomeInfected(new Bug(this.slots[randomIndex])); // Infect plant
-			this.drawSlot(randomIndex);
+			this.slots[randomIndex].becomeInfected(new Bug(this.slots[randomIndex])); // Infect plant + pass plant data to bug
+			this.drawSlot(randomIndex); //update slot on field
 		}
 	}
 

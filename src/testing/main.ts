@@ -5,14 +5,11 @@ namespace Classes{
     function handleLoad(_event: Event): void {
         
         let mainGame = new Game(<HTMLTableElement>document.getElementById("#gameTable1"));
-        console.log("Game created!");
 
         populateShop(mainGame.gameShop);
 
         mainGame.gameShop.drawShop();
-        
-        mainGame.money = 1000;
-        mainGame.gameField.selectedSlot = 0;
+
 
     }
 
@@ -36,7 +33,7 @@ namespace Classes{
             60,   // totalGrowTime
             2,   // fertilizerNeeded
             2,   // waterNeeded
-            100, // buyPrice
+            200, // buyPrice
             200, // sellPrice
             [    // Appearance (first is thumbnail //FIXME really?)
                 "https://cdn.wallpapersafari.com/86/41/FfVRah.jpg",
