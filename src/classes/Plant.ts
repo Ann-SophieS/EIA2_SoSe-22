@@ -220,16 +220,12 @@ export class Plant {
 	 * @param effect Effect to be applied on the plant
 	 */
 	public processEffect(effect : Effect) : void {
-		switch(effect){ //FIXME IfElse
-			case Effect.Fertilize:
-				this.fertilizePlant();
-				break;
-			case Effect.killBug:
-				this.fixBug();
-				break;
-			case Effect.water:
-				this.waterPlant();
-				break;
+		if(effect == Effect.Fertilize){
+			this.fertilizePlant();
+		}else if(effect == Effect.killBug){
+			this.fixBug();
+		}else if(effect == Effect.water){
+			this.waterPlant();
 		}
 	}
 
